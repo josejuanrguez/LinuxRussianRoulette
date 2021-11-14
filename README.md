@@ -1,6 +1,6 @@
 # LinuxRussianRoulette
 
-This is the Linux Process Russian Rulette"
+This is the Linux Process Russian Rulette.
 
 It will kill (or not) a system process randomly like a russian roulette
 
