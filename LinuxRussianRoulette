@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# Running on demo or real?
+# if you change this, processes will be killed.
+# Please, don't touch this!!!
+DEMO=0
+
+# Seeds the random number generator.
+RANDOM=$(date +%s)
+
+echo ""
+echo "******                     WARNING                  ******"
+echo
+echo "This is the Linux Process Russian Rulette"
+echo ""
+echo "It will kill (or not) a system process randomly like a russian roulette"
+echo ""
+echo "Running this script may cause system hang, services may stop working or"
+echo "user processes may be killed. "
+echo ""
+echo "Do you dare face the Linux Process Russian Roulette challenge?"
+echo "Are you sure? No crying afterwards?"
+echo ""
+echo "If you want to play, DO IT UNDER YOUR ENTIRE RESPONSABILITY."
+echo ""
+if [ "$DEMO" -eq 0 ]; then
+   echo "Running in DEMO MODE."
+   echo "It's DEMO MODE, believe me!"
+else
+   echo "WARNING: Running in REAL MODE!!!"
+fi
+echo ""
+echo -n "Press Ctrl+C to cancel or press ENTER to play... "
+read AreYouSureAboutWhatAreYouGoingToDo
+
+pidsarr=()
+while IFS= read -r line; do
+    pidsarr+=( "$line" )
+done < <( ps -ef --no-headers | awk '{ print $2 }' )
+echo ""
+echo "There are ${#pidsarr[*]} processes running."
+echo ""
+
+# Roll the dice. Let's have fun together.
+rand=$(od -A n -t d -N 2 /dev/urandom |tr -d ' ')
+dice=$(( rand % 6 + 1))
+
+if [ $dice -eq 6 ]; then
+   # Ooops! Bad luck! Selecting the processes to be killed.
+   # Get a random number...
+   random=$(od -A n -t d -N 2 /dev/urandom |tr -d ' ')
+   randomindex=$(( random % ${#pidsarr[*]} + 1))
+   ps -fp "${pidsarr[$randomindex]}"
+   if [ $DEMO -eq 1 ]; then
+      processowner="$(ps -o uname= -p "${pidsarr[$randomindex]}")"
+      user=$(whoami)
+      if [ "$processowner" == "$user" ] || [ "$user" == "root" ]; then
+         echo ""
+         echo "PUM! The process with PID ${pidsarr[$randomindex]} have been killed."
+         echo "I invite you to observe a minute's silence."
+         echo ""
+         # Only kill if it is not on DEMO mode.
+         if [ "$DEMO" -eq 0 ]; then kill -SIGKILL "${pidsarr[$randomindex]}"; fi
+      else
+         echo ""
+         echo "Sorry, $user, you can't kill a process that doesn't belong to you!"
+         echo ""
+        exit 1
+      fi
+   fi
+else
+   echo "Click!!! You are lucky. You triggered the pull but nothing happened."
+fi
+echo ""
+echo "Have a nice day!!"
+echo ""
