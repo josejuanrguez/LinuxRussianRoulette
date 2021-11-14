@@ -60,7 +60,7 @@ if [ $dice -eq 6 ]; then
          echo "I invite you to observe a minute's silence."
          echo ""
          # Only kill if it is not on DEMO mode.
-         if [ "$DEMO" -eq 0 ]; then kill -SIGKILL "${pidsarr[$randomindex]}"; fi
+         if [ "$DEMO" -ne 0 ]; then kill -SIGKILL "${pidsarr[$randomindex]}"; fi
       else
          echo ""
          echo "Sorry, $user, you can't kill a process that doesn't belong to you!"
